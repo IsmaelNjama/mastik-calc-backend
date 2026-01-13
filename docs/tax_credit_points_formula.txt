@@ -1,0 +1,119 @@
+Tax Credit Points (Nekudot Zikuy)
+Calculation Module – Israel 2025
+Purpose of the Module
+The module must calculate the total number of tax credit points (CREDITS_TOTAL) a taxpayer
+is entitled to under Israeli income tax rules for 2025. It must also calculate the corresponding
+annual monetary credit (TAX_CREDIT_ANNUAL), monthly monetary credit
+(TAX_CREDIT_MONTHLY), and prorated annual credit if the taxpayer worked fewer than 12
+months (TAX_CREDIT_ANNUAL_PRORATED). All calculations must strictly follow the
+rules listed below.
+Global Constants (Fixed Values for 2025)
+VALUE_POINT_MONTH = 242 NIS
+Explanation: monetary value of one tax credit point per month.
+VALUE_POINT_YEAR = 2,904 NIS
+Explanation: monetary value of one tax credit point per year.
+Master Formula
+CREDITS_TOTAL = C_RESIDENT + C_WOMAN + C_WORKING_TEEN +
+C_FOREIGN_WORKER + C_OLIM + C_SPOUSE_DEPENDENT +
+C_ALIMONY_EX_SPOUSE + C_CHILDREN + C_CHILDREN_SPECIAL_NEEDS +
+C_SINGLE_PARENT + C_CHILD_SUPPORT + (C_EDUCATION OR
+C_PROFESSIONAL_TRAINING)
+TAX_CREDIT_ANNUAL = CREDITS_TOTAL × VALUE_POINT_YEAR
+TAX_CREDIT_MONTHLY = CREDITS_TOTAL × VALUE_POINT_MONTH
+Variable Definitions
+Below are the exact meanings and rules for each variable in the formula.
+C_RESIDENT
+Definition: credit for being an Israeli resident with taxable income.
+Value: 2.25 points (2 for residency + 0.25 travel compensation).
+C_WOMAN
+Definition: credit for working women.
+Value: 0.5 point.
+Condition: applies to any woman with taxable income.
+C_WORKING_TEEN
+Definition: working teenagers aged 16–18 with taxable income.
+Value: 1 point.
+Note: girls also receive 0.5 point under C_WOMAN.
+C_FOREIGN_WORKER
+Definition: credit for legally employed foreign workers.
+Values:
+– Caregivers: 2.25 points
+– Other foreign workers: 1 point
+– Female foreign workers: additional 0.5 point
+Note: asylum seekers with status 2a5 are not eligible.
+C_OLIM
+Definition: credit for new immigrants based on year of aliyah and months since arrival.
+Rules for immigrants up to 2021 (42 months):
+– Months 0–18: 3 points
+– Months 19–30: 2 points
+– Months 31–42: 1 point
+Rules for immigrants from 2022 (54 months):
+– Months 0–12: 1 point
+– Months 13–30: 3 points
+– Months 31–42: 2 points
+– Months 43–54: 1 point
+Note: these points are added on top of resident (2.25) and woman (0.5) points.
+C_SPOUSE_DEPENDENT
+Definition: credit for supporting a dependent spouse.
+Values:
+– Joint filing: 1 point
+– Separate filing: 0.5 point
+Conditions: spouse must be an Israeli resident, have no income or very low income, and meet at
+least one dependency condition (retirement age, blindness, disability ≥ 90%, or disability
+pension).
+C_ALIMONY_EX_SPOUSE
+Definition: credit for paying alimony to a former spouse after entering a new marriage.
+Value: 1 point.
+Note: does not apply to child support.
+C_CHILDREN
+Definition: total credit points for children. It is a composite variable based on multiple
+categories.
+Child credits for all years (standard rule):
+– Year of birth: 1.5 points
+– Ages 1–17: 1 point per year
+– Age 18: 0.5 point
+Children born 2017–2023:
+– Year of birth: 1.5 points
+– Ages 1–5: 2.5 points
+Children born from 2024 onward:
+– Age 0: 2.5 points
+– Ages 1–2: 4.5 points
+– Age 3: 3.5 points
+– Ages 4–5: 2.5 points
+Separated parents raising children:
+– Each parent: 1 point total
+– If financial responsibility is shared: the 1 point is divided proportionally to expense share.
+Children aged 6–17 (rule introduced in 2024):
+– Each parent: 1 point per child
+– Single parent: 2 points per child
+C_CHILDREN_SPECIAL_NEEDS
+Definition: credit for children or adults with disabilities who depend on the taxpayer.
+Value: 2 points per qualifying dependent.
+Cases:
+– Disabled child under 18 (severe disability, blindness, disability ≥ 50%, or disability allowance)
+– Dependent adult (18+) with disability ≥ 74% and no separate benefits beyond allowed limits
+C_SINGLE_PARENT
+Definition: credit for single parents (widow/widower or parent where the other parent is absent
+or unknown).
+Value: 1 point per child.
+Note: remains valid even after remarriage.
+C_CHILD_SUPPORT
+Definition: credit for child support (alimony for children).
+Value: 1 point total.
+If both parents support the children, the point is split proportionally.
+C_EDUCATION
+Definition: credit for academic or teaching degrees. Only one track may be chosen per year
+(except BA + PhD, which may be combined).
+Values:
+– Bachelor (BA): 1 point per year, up to 3 years
+– Master (MA): 0.5 point per year, up to 2 years
+– PhD (immediately after BA): 0.5 point per year, up to 2 years
+– Teaching diploma (no academic degree): 1 point per year, up to 3 years
+– Medical or dental degree: 1 point per year for 3 years, then 0.5 point per year for 2 years
+These credits cannot be combined with professional training credits.
+C_PROFESSIONAL_TRAINING
+Definition: credit for vocational training programs.
+Value: 1 point per year.
+Conditions:
+– Training program must be at least 1,700 hours
+– Maximum: 3 years
+– Cannot be combined with academic degree credits

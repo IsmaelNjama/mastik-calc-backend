@@ -1,0 +1,136 @@
+TECHNICAL SPECIFICATION
+Module: MasTik Income Tax Calculation Engine (Israel
+2025)
+1. Purpose
+Develop a unified module for computing all mandatory deductions and benefits in Israel:
+– Income tax (Mas Hachnasa)
+– National Insurance (Bituach Leumi)
+– Pension contributions (Avtachat Pensia)
+– Nikudot Zikuy (tax credit points) and city-based tax reliefs
+The module must support all types of employment and multiple simultaneous income sources,
+providing a clear, itemized breakdown for the user.
+2. Input Data
+User inputs:
+• Employment type:
+– Single employer
+– Two employers
+– Self-employed: Esek Patur, Esek Murshe, Esek Zair
+– Combined: employer + Esek Patur/Murshe/Zair or two employers + Esek Patur/Murshe
+• Gross income per source
+• Age, gender, marital status
+• Number and ages of children
+• City of residence
+• Eligibility for tax credits (new immigrant, student, disabled, etc.)
+• Pension participation (yes/no, rate)
+• Primary employer (if two exist)
+• For self-employment: total revenue and expenses
+3. Output Data
+The module returns:
+• Net income (take-home pay)
+• Income-tax amount
+• National-insurance contributions (employee, employer, self-employed)
+• Pension contributions (employee, employer)
+• Detailed breakdown by each income source
+• Total and applied Nikudot Zikuy
+• City tax discount (if any)
+• JSON structure with full calculation details
+4. Calculation Formula
+NET = GROSS – BITUACH LEUMI – PENSION – INCOME TAX
+(Income tax is calculated after deducting Bituach Leumi and pension contributions.)
+5. Income-Tax Brackets (2025)
+Annual income (₪) Rate
+up to 83 280 ₪ 10 %
+83 281–119 520 ₪ 14 %
+119 521–191 280 ₪ 20 %
+191 281–264 000 ₪ 31 %
+264 001–660 480 ₪ 35 %
+660 481–1 003 920 ₪ 47 %
+over 1 003 920 ₪ 50 %
+6. National Insurance (Bituach Leumi)
+Employees
+– up to ₪ 7 522 → Employee 4.27 %, Employer 4.51%
+– ₪ 7 522.01–50 695 → Employee 12.17 %, Employer 7.60 %
+Self-employed
+– up to ₪ 7 522 → 7.70 %
+– ₪ 7 522.01–50 695 → 18 %
+(includes health insurance)
+7. Pension Contributions
+Employees
+– Employer 6.5 % (pension) + 6 % (severance)
+– Employee 6 %
+Employee share is deductible from taxable base.
+Self-employed
+– 4.45 % up to ₪ 7 122
+– up to 12.55 % above this threshold
+Mandatory if income > ₪ 6 331/month
+8. Nikudot Zikuy (Tax Credit Points)
+9. City Tax Relief Areas
+Applied after credits.
+Discount = 7–20 % of final tax.
+Example: Tzfat 12 %, Karmiel 10 %, Eilat 7 %, Mitzpe Ramon 13 %.
+10. Employment Scenarios
+10.1 Single Employer
+Employer withholds income tax, Bituach Leumi (employee), pension (employee);
+Employer pays Bituach Leumi (employer) and pension (employer);
+All Nikudot Zikuy applied here.
+10.2 Two Employers
+Primary employer uses credits; secondary employer taxes without credits (unless Te’um Mas).
+Annual reconciliation combines incomes and re-applies credits.
+10.3 Self-Employed – Esek Patur
+No VAT. Pays BL and income tax, mandatory pension.
+Tax base = income – expenses – BL – pension.
+10.4 Self-Employed – Esek Murshe
+VAT 18 %. Tax base = income (excl. VAT) – expenses – pension.
+Pays BL and income tax; credits reduce tax; city discount applied afterward.
+VAT reported separately.
+10.6 Combined – Employer + Esek Patur/Murshe
+Credits belong to the individual.
+1. Compute employer tax and apply credits.
+2. Record credit value used.
+3. Remaining credit reduces self-employment tax.
+4. Show credits used in employment, in self-employment, and unused balance.
+5. Each source (BL, pension, tax) calculated separately and shown clearly.
+10.7 Combined – Two Employers + Esek Patur/Murshe (I need to check this, don’t do it
+now)
+Primary employer has priority for credits; secondary employer without credits (unless Te’um
+Mas).
+Esek uses remaining credits. Order: Primary → Esek → Secondary.
+Output details withholdings per employer, self-employment taxes, credit distribution, and final
+totals.
+11. Order of Application
+1 Pension deductions
+2 Bituach Leumi
+3 Income tax
+4 Nikudot Zikuy
+5 City discount
+12. Rounding
+Two-decimal precision; final tax rounded to nearest shekel.
+13. Configuration File
+All rates and thresholds stored in “constants_2025.json”.
+Sections: tax brackets, Bituach Leumi, pension, credits, city discounts.
+14. Output Structure (Example)
+Period 2025-01
+Person: City Tzfat, Total Nikudot 5.25
+Sources:
+Employer 1 (primary): gross 12 000; BL emp 420; BL er 430; pension emp 720; pension er 1
+500; tax before credits 900; credits 900; tax after 0.
+Employer 2 (secondary): gross 4 000; BL emp 140; BL er 150; pension emp 240; pension er 500;
+tax withheld 800.
+Esek Murshe: gross 15 000; expenses 3 000; BL 900; pension 600; tax before 1 575; credits 600;
+tax after 975; VAT output 2 700; VAT input 900; VAT due 1 800.
+Credits: total 5.25 (₪ 1 270); used in employment 900; used in self-employment 600; unused –
+230.
+City discount 10 % = ₪ 197.5.
+Summary: gross 31 000; tax 1 578; BL 1 460; pension (emp) 1 560; pension (er) 2 000; net ≈ 26
+300 ₪ (example values).
+15. Code Requirements
+• Modular architecture (function per stage).
+• All constants externalized in config file.
+• Three-language support (HE/RU/EN).
+• Annual updates via config only.
+• Output in JSON and human-readable format.
+16. Validation and Testing
+1 Compare results with official Rashut HaMasim calculator.
+2 Verify credit distribution in combined scenarios.
+3 Ensure remaining credits reduce self-employment tax.
+4 Check two-employer cases with and without Te’um Mas.
