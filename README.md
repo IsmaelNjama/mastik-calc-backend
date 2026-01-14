@@ -1,55 +1,96 @@
 # MASTIK Calculator Backend
 
-FastAPI backend for the Israeli Net Salary Calculator.
+FastAPI backend implementing an Israeli net-salary calculator and credit-points logic.
 
-## Setup
+## Requirements
 
-1. Install dependencies:
+- Python 3.10+
+- Install dependencies:
+
 ```bash
 pip install -r requirements.txt
 ```
 
-2. Run the server:
+## Run locally
+
+- Start the FastAPI app (recommended):
+
 ```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-## API Endpoints
+- Health: GET /health
+- Root: GET /
 
-### POST /api/v1/calculator/calculate
-Calculate net salary based on employment type and inputs.
+## API (key endpoints)
 
-### GET /api/v1/calculator/tax-brackets
-Get current Israeli tax brackets.
+- POST /api/v1/calculator/calculate
+  - Calculate net salary and credit points. Body follows the `CalculatorInputs` model (see `app/models/calculator.py`).
+- GET /api/v1/calculator/tax-brackets
+  - Returns configured tax brackets.
+- GET /api/v1/calculator/constants
+  - Returns constants such as national insurance and credit point values.
 
-### GET /api/v1/calculator/constants
-Get all tax constants (national insurance, health tax, etc.).
+Example `POST /api/v1/calculator/calculate` payload (minimal):
 
-## Project Structure
+```json
+{
+  "employment_type": "employee",
+  "gross_salary": 15000.0,
+  "pension_rate": 6.0,
+  "age": 31,
+  "gender": "other"
+}
+```
+
+## Project layout
 
 ```
-mastik_calc_backend/
-├── main.py                 # FastAPI app entry point
-├── requirements.txt        # Dependencies
+/
 ├── app/
-│   ├── models/            # Pydantic models
-│   │   └── calculator.py
-│   ├── services/          # Business logic
+│   ├── main.py                 # FastAPI application
+│   ├── models/
+│   │   └── calculator.py       # Pydantic models (CalculatorInputs, results)
+│   ├── services/               # Calculation logic (taxes, credits)
 │   │   ├── tax_calculator.py
 │   │   ├── multi_source_calculator.py
 │   │   └── self_employed_calculator.py
-│   ├── routers/           # API routes
+│   ├── routers/                # API routes
 │   │   └── calculator.py
-│   └── utils/             # Utilities and constants
-│       └── tax_constants.py
+│   └── utils/
+│       └── tax_constants.py    # Tax brackets, rates, constants
+├── requirements.txt
+├── lambda_handler.py           # AWS Lambda handler
+├── Dockerfile                  # Docker for app
+├── Dockerfile.lambda           # Docker for Lambda
+├── docker-compose.lambda.yml   # Compose for Lambda testing
+├── cloudformation.yml          # AWS CloudFormation template for deployment
+├── iam-policy.json             # IAM policy for Lambda execution
+├── lambda-ecr-policy.json      # ECR policy for Lambda
+├── deploy.sh                   # Deployment script
 ```
 
-## Features
+Key files:
 
-- Employee salary calculation
-- Multiple employers support
-- Self-employed income calculation
-- Combined employment (employee + self-employed)
-- Israeli tax brackets and deductions for 2025
-- Credit points calculation
-- CORS enabled for frontend integration
+- `app/services/tax_calculator.py` — credit points, income-tax, NI, health tax and pension calculations.
+- `app/utils/tax_constants.py` — values for tax brackets, rates, and credit-point monetary value.
+
+## Lambda & AWS Deployment
+
+- **CloudFormation**: `cloudformation.yml` defines the complete infrastructure.
+- **Docker**: `Dockerfile.lambda` builds a Lambda container image; use `docker-compose.lambda.yml` for local testing.
+- **Deploy**: Use `deploy.sh` to push to AWS.
+
+## Tests
+
+- Unit tests: `pytest -q`
+
+```bash
+python -m pytest -q
+```
+
+## Development notes
+
+- Use `app.models.calculator.CalculatorInputs` when crafting API requests; it documents all supported fields for credit calculation (children, spouse, education, immigration, foreign worker, etc.).
+- Credit points logic is implemented in `app/services/tax_calculator.py::calculate_credit_points`.
+- The default `uvicorn` invocation should use `app.main:app` from the repo root.
