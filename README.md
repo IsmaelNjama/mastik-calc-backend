@@ -49,27 +49,37 @@ Example `POST /api/v1/calculator/calculate` payload (minimal):
 /
 ├── app/
 │   ├── main.py                 # FastAPI application
-│   ├── models/                 # Pydantic models (CalculatorInputs, results)
+│   ├── models/
+│   │   └── calculator.py       # Pydantic models (CalculatorInputs, results)
 │   ├── services/               # Calculation logic (taxes, credits)
-│   └── routers/                # API routes
-├── lambda_handler.py           # AWS Lambda handler (optional deploy)
+│   │   ├── tax_calculator.py
+│   │   ├── multi_source_calculator.py
+│   │   └── self_employed_calculator.py
+│   ├── routers/                # API routes
+│   │   └── calculator.py
+│   └── utils/
+│       └── tax_constants.py    # Tax brackets, rates, constants
 ├── requirements.txt
-├── Dockerfile*                 # Docker images (app and lambda variants available)
-├── run-lambda-local.sh         # helper for local lambda testing
-└── tests (top-level):
-		├── test_api.py
-		└── test_lambda.py
+├── lambda_handler.py           # AWS Lambda handler
+├── Dockerfile                  # Docker for app
+├── Dockerfile.lambda           # Docker for Lambda
+├── docker-compose.lambda.yml   # Compose for Lambda testing
+├── cloudformation.yml          # AWS CloudFormation template for deployment
+├── iam-policy.json             # IAM policy for Lambda execution
+├── lambda-ecr-policy.json      # ECR policy for Lambda
+├── deploy.sh                   # Deployment script
 ```
 
-Files of interest:
+Key files:
 
 - `app/services/tax_calculator.py` — credit points, income-tax, NI, health tax and pension calculations.
-- `app/utils/tax_constants.py` — values for brackets, rates, and credit-point monetary value.
+- `app/utils/tax_constants.py` — values for tax brackets, rates, and credit-point monetary value.
 
-## Lambda & Docker
+## Lambda & AWS Deployment
 
-- There are artifacts for building/deploying as Lambda: `Dockerfile.lambda`, `docker-compose.lambda.yml`, and `lambda_handler.py`.
-- Use `run-lambda-local.sh` to exercise the handler locally (make it executable if needed).
+- **CloudFormation**: `cloudformation.yml` defines the complete infrastructure.
+- **Docker**: `Dockerfile.lambda` builds a Lambda container image; use `docker-compose.lambda.yml` for local testing.
+- **Deploy**: Use `deploy.sh` to push to AWS.
 
 ## Tests
 
