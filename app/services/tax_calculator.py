@@ -142,13 +142,16 @@ class TaxCalculatorService:
         - C_PROFESSIONAL_TRAINING: Up to 3 years, 1 point/year
         """
         points = 0.0
+        print("Calculating credit points for inputs:", inputs)
 
         # C_RESIDENT: Always 2.25 for Israeli residents with taxable income
         points += CREDIT_POINTS["resident"]
+        print("points resident res", points)
 
         # C_WOMAN: 0.5 points for working women
         if inputs.gender and inputs.gender.lower() in ["female", "woman", "f"]:
             points += 0.5
+            print("points female res", points)
 
         # C_WORKING_TEEN: 1 point for teenagers aged 16-18 with taxable income
         if 16 <= inputs.age <= 18:
@@ -300,7 +303,7 @@ class TaxCalculatorService:
         2. Bituach Leumi (National Insurance)
         3. Income tax
         4. Nikudot Zikuy (tax credits)
-        5. City discount (issue #7)
+        5. City discount
         """
         monthly_salary = inputs.gross_salary
         annual_salary = monthly_salary * 12
