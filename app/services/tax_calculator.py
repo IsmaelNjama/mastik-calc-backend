@@ -324,6 +324,7 @@ class TaxCalculatorService:
             (pension_employee * 12) - (national_insurance_employee * 12)
         income_tax = cls.calculate_income_tax(taxable_income, credit_points)
 
+        # Calculate monthly taxable base
         taxable_base = taxable_income / 12
 
         # Health tax (standard calculation)
