@@ -11,7 +11,7 @@ class TaxCalculatorService:
     def calculate_national_insurance_employee(monthly_salary: float, is_self_employed: bool = False) -> float:
         """
         Calculate national insurance contribution for employee.
-        Implements two-tier structure per spec section 6:
+        Implements two-tier structure
         - Tier 1 (up to 7,522): 4.27% for employee
         - Tier 2 (7,522.01–50,695): 12.17% for employee
         """
@@ -71,11 +71,11 @@ class TaxCalculatorService:
                 NATIONAL_INSURANCE["employer_tier2_rate"]
             return tier1_amount + tier2_amount
 
-    @staticmethod
-    def calculate_health_tax(monthly_salary: float) -> float:
-        """Calculate health tax contribution"""
-        capped_salary = min(monthly_salary, HEALTH_TAX["max_salary"])
-        return capped_salary * HEALTH_TAX["rate"]
+    # @staticmethod
+    # def calculate_health_tax(monthly_salary: float) -> float:
+    #     """Calculate health tax contribution"""
+    #     capped_salary = min(monthly_salary, HEALTH_TAX["max_salary"])
+    #     return capped_salary * HEALTH_TAX["rate"]
 
     # pension calculation to differentiate employee and employer
     @staticmethod
@@ -142,7 +142,6 @@ class TaxCalculatorService:
         - C_PROFESSIONAL_TRAINING: Up to 3 years, 1 point/year
         """
         points = 0.0
-        print("Calculating credit points for inputs:", inputs)
 
         # C_RESIDENT: Always 2.25 for Israeli residents with taxable income
         points += CREDIT_POINTS["resident"]
@@ -311,22 +310,24 @@ class TaxCalculatorService:
         # Calculate credit points
         credit_points = cls.calculate_credit_points(inputs)
 
-        # Step 1: Calculate pension deduction (employee portion)
+        # Calculate pension deduction (employee portion)
         pension_employee = cls.calculate_pension_employee(
             monthly_salary, inputs.pension_rate)
 
-        # Step 2: Calculate National Insurance (employee portion)
+        # Calculate National Insurance (employee portion)
         national_insurance_employee = cls.calculate_national_insurance_employee(
             monthly_salary, is_self_employed=False
         )
 
-        # Step 3: Calculate income tax on (gross - pension - NI)
+        # Calculate income tax on (gross - pension - NI)
         taxable_income = annual_salary - \
             (pension_employee * 12) - (national_insurance_employee * 12)
         income_tax = cls.calculate_income_tax(taxable_income, credit_points)
 
+        taxable_base = taxable_income / 12
+
         # Health tax (standard calculation)
-        health_tax = cls.calculate_health_tax(monthly_salary)
+        # health_tax = cls.calculate_health_tax(monthly_salary)
 
         # Employer contributions (informational, not deducted from employee)
         national_insurance_employer = cls.calculate_national_insurance_employer(
@@ -335,7 +336,7 @@ class TaxCalculatorService:
 
         # Calculate total deductions (employee only)
         total_deductions = income_tax + \
-            national_insurance_employee + health_tax + pension_employee
+            national_insurance_employee + pension_employee
         net_salary = monthly_salary - total_deductions
 
         # Create tax breakdown with separated contributions
@@ -343,7 +344,6 @@ class TaxCalculatorService:
             income_tax=income_tax,
             national_insurance_employee=national_insurance_employee,
             national_insurance_employer=national_insurance_employer,
-            health_tax=health_tax,
             pension_employee=pension_employee,
             pension_employer=pension_employer,
             total_deductions=total_deductions
@@ -359,6 +359,7 @@ class TaxCalculatorService:
 
         return CalculationResult(
             gross_salary=monthly_salary,
+            taxable_base=taxable_base,
             net_salary=net_salary,
             tax_breakdown=tax_breakdown,
             credit_points=credit_points,
