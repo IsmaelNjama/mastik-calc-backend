@@ -73,7 +73,7 @@ class CalculatorInputs(BaseModel):
     foreign_worker: bool = Field(default=False)
     # Foreign worker type - 'caregiver' (2.25 points) or 'other' (1 point)
     foreign_worker_type: Optional[str] = Field(default=None)
-    #  City - required for city tax relief (issue #7)
+    #  City - required for city tax relief
     city: Optional[str] = Field(default=None)
     pension_rate: float = Field(ge=0, le=100, default=6)
 
@@ -81,11 +81,10 @@ class CalculatorInputs(BaseModel):
 class TaxBreakdown(BaseModel):
     # Separated employee and employer contributions
     income_tax: float
-    national_insurance_employee: float  # ISSUE #4 & #5: Employee portion per spec
+    national_insurance_employee: float
     # Employer portion (not deducted from employee)
     national_insurance_employer: float
-    health_tax: float
-    pension_employee: float  # ISSUE #5: Employee contribution
+    pension_employee: float
     # Employer contribution (not deducted from employee)
     pension_employer: float
     total_deductions: float  # Employee deductions only
@@ -93,6 +92,7 @@ class TaxBreakdown(BaseModel):
 
 class CalculationResult(BaseModel):
     gross_salary: float
+    taxable_base: float
     net_salary: float
     tax_breakdown: TaxBreakdown
     # Credit points as number (not monetary value)
